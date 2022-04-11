@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  proxy:
+    image: serjs/go-socks5-proxy
+    # network_mode: host
+    ports:
+      - 1337:1337 # proxy
+    environment:
+      PROXY_PORT: 1337
