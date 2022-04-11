@@ -11,7 +11,7 @@ echo "Deploying ${QUANTITY} services on ${PROJECT_NAME} cluster (${AWS_REGION})"
 
 for i in $(seq 1 $QUANTITY)
 do 
-    SERVICE_NAME = "${PROJECT_NAME}"
+    SERVICE_NAME="${PROJECT_NAME}-${i}"
     echo "### Doing: ${i}/${QUANTITY} ####"
     ecs-cli compose --project-name $SERVICE_NAME --file $DOCKER_COMPOSE_INPUT --ecs-params $ECS_PARAMS_INPUT --debug service up --region $AWS_REGION --ecs-profile $AWS_PROFILE --cluster-config $PROJECT_NAME
 
@@ -19,4 +19,4 @@ do
     echo "### Done: ${i} ####"
 done
 
-ecs-cli ps --cluster-config $PROJECT_NAME --desired-status RUNNING | awk 'NR>2 {print $3}'  | awk -F '-' '{print $1}' > proxies.txt
+ecs-cli ps --cluster-config $PROJECT_NAME --desired-status RUNNING | awk 'NR>1 {print $3}'  | awk -F '-' '{print $1}' > proxies.txt

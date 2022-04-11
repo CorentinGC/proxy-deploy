@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+source setenv.sh
+
 PROJECT_NAME="$1"
 
 # cleanup aws log group

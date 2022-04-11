@@ -3,16 +3,14 @@ run_params:
     awsvpc_configuration:
       assign_public_ip: ENABLED
       security_groups:
-      - sg-05c4666264da2ec0b
+      - sg-03258b0b97e890dd9
       subnets:
-      - subnet-05195ea051ba54123
-      - subnet-0842600db4b8afa0c
+      - subnet-0c84dac0dd8655ffa
+      - subnet-00806b4e9b41f6561
 task_definition:
   ecs_network_mode: awsvpc
   services:
-    proxy-0:
-      essential: true
-    proxy-1:
+    proxy:
       essential: true
   task_execution_role: ecsTaskExecutionRole
   task_size:

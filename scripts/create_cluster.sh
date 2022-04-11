@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -e
-source setenv.sh
 
 PROJECT_NAME="$1"
 
@@ -32,7 +31,9 @@ security_grp_id=$(aws ec2 describe-security-groups --filters Name=vpc-id,Values=
 echo "security_grp_id=${security_grp_id}"
 
 # remove all rules
-aws ec2 revoke-security-group-ingress --profile $AWS_PROFILE --group-id $security_grp_id --ip-permissions $("aws ec2 describe-security-groups --profile ${AWS_PROFILE} --output json --group-ids ${security_grp_id} --query 'SecurityGroups[0].IpPermissions'")
+  
+
+aws ec2 revoke-security-group-ingress --profile $AWS_PROFILE --group-id $security_grp_id --ip-permissions "`aws ec2 describe-security-groups --output json --group-ids ${security_grp_id} --query "SecurityGroups[0].IpPermissions"`"
 # add allowed ip:port to rules
 aws ec2 authorize-security-group-ingress --profile $AWS_PROFILE --group-id $security_grp_id --port ${ALLOWED_PORT} --cidr "${ALLOWED_IP}/32" --protocol "tcp"
 
@@ -42,7 +43,7 @@ subnet_a=${array[0]}
 subnet_b=${array[1]}
 
 # call the python script with the arguments passed
-python3 ./scripts/set_ecs_params.py "${vpc_id}" "${security_grp_id}" "${subnet_a}" "${subnet_b}" "${PROJECT_NAME}" "${QTY}"
+python3 ./scripts/set_ecs_params.py "${vpc_id}" "${security_grp_id}" "${subnet_a}" "${subnet_b}" "${PROJECT_NAME}"
 
 # ecs-cli configure --cluster test --config-name test --region eu-west-1 --default-launch-type FARGATE
 
