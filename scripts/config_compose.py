@@ -18,29 +18,6 @@ OUTPUT_FILE = f"./clusters/docker-compose.{project_name}.yml"
 stack = yaml.safe_load(open(INPUT_FILE))
 services = stack["services"]
 
-# def update_services():
-#     global services
-
-#     base_port = int(services["proxy"]["ports"][0].split(":")[0])
-
-#     for i in range(quantity):
-#         new_port = base_port+i
-#         services[f"{project_name}-{i}"] = deepcopy(services["proxy"])
-#         services[f"{project_name}-{i}"]["ports"] = [f"{new_port}:{new_port}"]
-#         services[f"{project_name}-{i}"]["environment"] = {"PROXY_PORT": new_port}
-#     del services["proxy"]
-
-#     # for service_name, service in services.items():
-#     #     if service_name == "proxy":
-#     #         service["logging"] = {
-#     #             'driver': 'awslogs',
-#     #             'options': {
-#     #                 'awslogs-group': f"{project_name}",
-#     #                 'awslogs-region': f"{REGION}",
-#     #                 'awslogs-stream-prefix': f'{project_name}'
-#     #                 }
-#     #             }
-
 # Write the new docker-compose.yml file.
 def create_deploy_docker_compose_file():
     with open(OUTPUT_FILE, "w") as out_file:
@@ -55,8 +32,5 @@ def create_deploy_docker_compose_file():
 
     print("Wrote new compose file.")
     print(f"COMPOSE_FILE={OUTPUT_FILE}")
-
-# if(len(params) > 2):
-#     update_services()
 
 create_deploy_docker_compose_file()

@@ -13,7 +13,6 @@ security_group = params[2]
 subnet_a = params[3]
 subnet_b = params[4]
 project_name = params[5]
-# quantity = int(params[6])
 
 INPUT_FILE = "./ecs-params.yml"
 OUTPUT_FILE = f"./clusters/ecs-params.{project_name}.yml"
@@ -23,10 +22,6 @@ services = stack["run_params"]["network_configuration"]
 
 services["awsvpc_configuration"]["subnets"] = [subnet_a, subnet_b]
 services["awsvpc_configuration"]["security_groups"] = [security_group]
-
-# for i in range(quantity):
-#     stack["task_definition"]["services"][f"{project_name}-{i}"] = deepcopy(stack["task_definition"]["services"]["proxy"])
-# del stack["task_definition"]["services"]["proxy"]
 
 with open(OUTPUT_FILE, "w") as out_file:
     yaml.dump(stack, out_file, default_flow_style=False)
