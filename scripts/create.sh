@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-ALLOWED_IP="82.64.99.94"
-ALLOWED_PORT="1337"
-
 PROJECT_NAME="$1"
 CLEAN_PROJECT_NAME=$(echo ${1} | awk -F '-' '{print $1}')
 
@@ -12,7 +9,7 @@ ECS_PARAMS_INPUT="./clusters/ecs-params.${PROJECT_NAME}.yml"
 
 echo "Deploying ${PROJECT_NAME}"
 # Generate compose file
-python3 ./config_compose.py ${CLEAN_PROJECT_NAME}
+python3 ./scripts/config_compose.py ${CLEAN_PROJECT_NAME}
 
 # ECS CLI configuration
 # create ecs cluster config
@@ -21,7 +18,7 @@ ecs-cli configure --cluster ${PROJECT_NAME} --config-name ${PROJECT_NAME} --regi
 
 # ecs-cli up
 echo "ecs-cli up running"
-result=$(ecs-cli up --force -ecs-profile default --cluster-config ${PROJECT_NAME})
+result=$(ecs-cli up --force -ecs-profile default --cluster-config ${PROJECT_NAME} 2>&1 | tee /dev/tty)
 echo "ecs-cli up done"
 vpc_id=$(echo "$result" | grep -o "VPC created: .*" | cut -f2 -d ":" | xargs)
 echo "vpc_id=${vpc_id}"
@@ -46,7 +43,7 @@ subnet_a=${array[0]}
 subnet_b=${array[1]}
 
 # call the python script with the arguments passed
-python3 ./set_ecs_params.py "${vpc_id}" "${security_grp_id}" "${subnet_a}" "${subnet_b}" "${PROJECT_NAME}"
+python3 ./scripts/set_ecs_params.py "${vpc_id}" "${security_grp_id}" "${subnet_a}" "${subnet_b}" "${PROJECT_NAME}"
 
 # deploy to the ecs cluster
 ecs-cli compose --project-name $PROJECT_NAME --file $DOCKER_COMPOSE_INPUT --ecs-params $ECS_PARAMS_INPUT --debug service up --region $AWS_REGION --ecs-profile $AWS_PROFILE --cluster-config $PROJECT_NAME

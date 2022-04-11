@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-export "$(grep -vE "^(#.*|\s*)$" .env)"
+source ./.env
 
 for file in ./clusters/*
 do
