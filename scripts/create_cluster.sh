@@ -3,6 +3,7 @@ set -e
 
 PROJECT_NAME="$1"
 CLEAN_PROJECT_NAME=$(echo ${1} | awk -F '-' '{print $1}')
+QUANTITY="$2"
 
 DOCKER_COMPOSE_INPUT="./clusters/docker-compose.${CLEAN_PROJECT_NAME}.yml"
 ECS_PARAMS_INPUT="./clusters/ecs-params.${PROJECT_NAME}.yml"
@@ -16,9 +17,10 @@ python3 ./scripts/config_compose.py ${CLEAN_PROJECT_NAME}
 echo "create ecs cluster config"
 ecs-cli configure --cluster ${PROJECT_NAME} --config-name ${PROJECT_NAME} --region ${AWS_REGION} --default-launch-type FARGATE
 
+
 # ecs-cli up
 echo "ecs-cli up running"
-result=$(ecs-cli up --force -ecs-profile default --cluster-config ${PROJECT_NAME} 2>&1 | tee /dev/tty)
+result=$(ecs-cli up --force --ecs-profile default --cluster-config "${PROJECT_NAME}-${i}" 2>&1 | tee /dev/tty)
 echo "ecs-cli up done"
 vpc_id=$(echo "$result" | grep -o "VPC created: .*" | cut -f2 -d ":" | xargs)
 echo "vpc_id=${vpc_id}"
@@ -34,8 +36,8 @@ aws ec2 revoke-security-group-ingress --profile default --group-id $security_grp
   --ip-permissions \
   "`aws ec2 describe-security-groups --profile default --output json --group-ids $security_grp_id --query "SecurityGroups[0].IpPermissions"`"
 
-## add allowed ip to rules
-aws ec2 authorize-security-group-ingress --profile $AWS_PROFILE --group-id $security_grp_id --port "${ALLOWED_PORT}" --cidr "${ALLOWED_IP}/32" --protocol "tcp"
+# add allowed ip to rules
+aws ec2 authorize-security-group-ingress --profile $AWS_PROFILE --group-id $security_grp_id --port "1337-2337" --cidr "${ALLOWED_IP}/32" --protocol "tcp"
 
 # use an array
 array=(${subnet_ids//,/ })
@@ -43,16 +45,4 @@ subnet_a=${array[0]}
 subnet_b=${array[1]}
 
 # call the python script with the arguments passed
-python3 ./scripts/set_ecs_params.py "${vpc_id}" "${security_grp_id}" "${subnet_a}" "${subnet_b}" "${PROJECT_NAME}"
-
-# deploy to the ecs cluster
-ecs-cli compose --project-name $PROJECT_NAME --file $DOCKER_COMPOSE_INPUT --ecs-params $ECS_PARAMS_INPUT --debug service up --region $AWS_REGION --ecs-profile $AWS_PROFILE --cluster-config $PROJECT_NAME
-
-data=$(ecs-cli ps --cluster-config ${PROJECT_NAME} | awk 'NR==2{print $3}' | awk -F '-' '{print $1}')
-ip=$(echo $data | awk -F ':' '{print $1}')
-port=$(echo $data | awk -F ':' '{print $2}')
-echo "Container deployed"
-echo "IP: ${ip}"
-echo "PORT: ${port}"
-
-echo "${data}" >> proxies.txt
+python3 ./scripts/set_ecs_params.py "${vpc_id}" "${security_grp_id}" "${subnet_a}" "${subnet_b}" "${PROJECT_NAME}" "${QTY}"

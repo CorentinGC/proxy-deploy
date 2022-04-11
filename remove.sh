@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-source ./.env
-
 for file in ./clusters/*
 do
     FILE=$(echo ${file} | awk -F '/' '{print $3}' | awk -F '.' '{printf $1}')
