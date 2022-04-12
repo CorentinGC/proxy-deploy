@@ -1,3 +1,4 @@
 .env
 proxies.txt
 cluters/*
+!cluters/.keep
