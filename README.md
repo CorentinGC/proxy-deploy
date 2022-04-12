@@ -1,3 +1,6 @@
+Deploy unlimied proxies on AWS ECS
+
+*Using: https://hub.docker.com/r/serjs/go-socks5-proxy/*
 
 ## Utils
 - `get-proxies` : Fetch containers IP ($1 | name)
